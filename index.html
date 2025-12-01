@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="logodepestaña/Captura de pantalla 2025-11-19 143222.ico" type="image/png">
+    <title>Market</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- Pantalla de Login -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-container">
+            <h1 id="loginStoreName">Market</h1>
+            <h2>Ingrese su PIN</h2>
+            <input type="password" id="loginPinInput" class="pin-input" maxlength="32" placeholder="Ingrese PIN">
+            <button onclick="login()" class="btn-primary">Ingresar</button>
+            <p id="loginError" class="error-message"></p>
+        </div>
+    </div>
+
+    <!-- Aplicación Principal -->
+    <div id="mainApp" class="main-app" style="display: none;">
+        <!-- Encabezado -->
+        <header class="header">
+            <h1 id="storeName">Market</h1>
+        </header>
+
+        <!-- Barra de Navegación -->
+        <nav class="navbar">
+            <button onclick="showSection('nuevaVenta')" class="nav-btn active" id="navNuevaVenta">Nueva Venta</button>
+            <button onclick="showSection('inventario')" class="nav-btn" id="navInventario">Inventario</button>
+            <button onclick="showSection('configuracion')" class="nav-btn" id="navConfiguracion">Configuración</button>
+        </nav>
+
+        <!-- Ventana Nueva Venta -->
+        <div id="nuevaVenta" class="section active">
+            <div class="nueva-venta-container">
+                <div class="search-section">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Buscar por nombre o código...">
+                    <button onclick="addProductToCart()" class="btn-add">Agregar</button>
+                    <div id="searchResults" class="search-results"></div>
+                </div>
+
+                <div class="cart-section">
+                    <h2>Carrito</h2>
+                    <div id="cartContainer" class="cart-container" onclick="activateScanner()">
+                        <table class="cart-table">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Tamaño</th>
+                                    <th>Cantidad (Unds)</th>
+                                    <th>Precio/U</th>
+                                    <th>Precio</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="cartBody">
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="scanner-status" id="scannerStatus"></p>
+                </div>
+
+                <div class="payment-section">
+                    <div class="total-container">
+                        <h3>Total</h3>
+                        <p class="total-amount" id="totalAmount">$0.00</p>
+                        <p class="converted-amount" id="convertedAmount"></p>
+                    </div>
+                    <div class="payment-buttons">
+                        <button onclick="registerSale('Punto de Venta')" class="btn-payment">Punto de Venta</button>
+                        <button onclick="registerSale('Transferencia')" class="btn-payment">Transferencia</button>
+                        <button onclick="registerSale('Pago P2P')" class="btn-payment">Pago P2P</button>
+                        <button onclick="registerSale('Efectivo')" class="btn-payment">Efectivo</button>
+                        <button onclick="registerSale('Biopago')" class="btn-payment">Biopago</button>
+                    </div>
+                    <button onclick="cancelSale()" class="btn-cancel">Cancelar Venta</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ventana Inventario -->
+        <div id="inventario" class="section">
+            <div class="inventory-container">
+                <div class="inventory-sidebar" id="inventorySidebar">
+                    <p class="sidebar-placeholder">Seleccione un producto para ver detalles</p>
+                </div>
+                <div class="inventory-grid" id="inventoryGrid">
+                </div>
+            </div>
+            <div class="inventory-navbar">
+                <button onclick="showAddProductModal()" class="btn-inventory">Agregar Producto</button>
+                <button onclick="deleteInventory()" class="btn-inventory">Eliminar Inventario</button>
+                <button onclick="editInventory()" class="btn-inventory">Editar Inventario</button>
+                <button onclick="printInventory()" class="btn-inventory">Imprimir Inventario</button>
+            </div>
+        </div>
+
+        <!-- Ventana Configuración -->
+        <div id="configuracion" class="section">
+            <div class="config-container">
+                <h2>Configuración</h2>
+                
+                <div class="config-group">
+                    <label>Moneda a utilizar:</label>
+                    <select id="currencySelect" class="config-select">
+                        <option value="USD">Dólares Estadounidenses (USD)</option>
+                        <option value="EUR">Euros (EUR)</option>
+                        <option value="BS">Bolívares (Bs)</option>
+                    </select>
+                </div>
+
+                <div class="config-group">
+                    <label>Convertir a:</label>
+                    <select id="convertToSelect" class="config-select">
+                        <option value="">No convertir</option>
+                        <option value="USD">Dólares Estadounidenses (USD)</option>
+                        <option value="EUR">Euros (EUR)</option>
+                        <option value="BS">Bolívares (Bs)</option>
+                    </select>
+                    <input type="number" id="conversionRate" class="config-input" placeholder="Tasa de conversión" step="0.01">
+                </div>
+
+                <div class="config-group">
+                    <label>PIN de autenticación:</label>
+                    <input type="password" id="newPin" class="config-input" placeholder="Nuevo PIN (4-32 dígitos)" maxlength="32">
+                    <input type="password" id="confirmPin" class="config-input" placeholder="Confirmar PIN" maxlength="32">
+                </div>
+
+                <div class="config-group">
+                    <label>Nombre de la tienda:</label>
+                    <input type="text" id="storeNameInput" class="config-input" placeholder="Nombre de la tienda">
+                </div>
+
+                <div class="config-group">
+                    <label>Aviso de Stock (%):</label>
+                    <input type="number" id="stockWarning" class="config-input" value="20" min="1" max="100">
+                </div>
+
+                <div class="config-group">
+                    <label>Borrar registro de ventas automáticamente:</label>
+                    <select id="autoDeleteSales" class="config-select">
+                        <option value="never">No borrar nunca</option>
+                        <option value="weekly">Borrar cada semana</option>
+                        <option value="monthly">Borrar cada mes</option>
+                        <option value="yearly">Borrar anualmente</option>
+                    </select>
+                </div>
+
+                <div class="config-group">
+                    <label>Ajuste de impresora (ancho en mm):</label>
+                    <input type="number" id="printerWidth" class="config-input" value="55" min="40" max="80">
+                </div>
+
+                <div class="config-buttons">
+                    <button onclick="saveSettings()" class="btn-config">Guardar Ajustes</button>
+                    <button onclick="viewSalesRecord()" class="btn-config">Ver Registro de Ventas</button>
+                    <button onclick="exportSalesRecord()" class="btn-config">Exportar Registro (PDF)</button>
+                    <button onclick="deleteSalesRecord()" class="btn-config btn-danger">Borrar Registro de Ventas</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Agregar Producto -->
+    <div id="addProductModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAddProductModal()">&times;</span>
+            <h2>Agregar Producto</h2>
+            <form id="addProductForm">
+                <label>Nombre: *</label>
+                <input type="text" id="productName" class="modal-input" required>
+
+                <label>Código de Barra:</label>
+                <input type="text" id="productBarcode" class="modal-input">
+
+                <label>Tamaño:</label>
+                <div class="size-container">
+                    <input type="number" id="productSize" class="modal-input size-input" step="0.01">
+                    <select id="productSizeUnit" class="modal-select">
+                        <option value="L">Litros (L)</option>
+                        <option value="mL">Mililitros (mL)</option>
+                        <option value="Kg">Kilogramos (Kg)</option>
+                        <option value="g">Gramos (g)</option>
+                    </select>
+                </div>
+
+                <label>Precio: *</label>
+                <input type="number" id="productPrice" class="modal-input" step="0.01" required>
+
+                <label>Stock:</label>
+                <div class="stock-container">
+                    <select id="stockType" class="modal-select" onchange="updateStockInputs()">
+                        <option value="units">Unidades</option>
+                        <option value="packages">Paquetes</option>
+                        <option value="bulk">Bultos</option>
+                    </select>
+                    <div id="stockInputs">
+                        <input type="number" id="stockQuantity" class="modal-input" placeholder="Cantidad" value="0" min="0">
+                        <input type="number" id="stockPerContainer" class="modal-input" placeholder="Cant/Contenedor" style="display:none;" value="1" min="1">
+                    </div>
+                </div>
+
+                <label>Imagen:</label>
+                <input type="file" id="productImageFile" class="modal-input" accept="image/*">
+                <input type="text" id="productImageUrl" class="modal-input" placeholder="O ingrese URL de imagen">
+
+                <button type="submit" class="btn-primary">Agregar Producto</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Resumen de Venta -->
+    <div id="saleModal" class="modal">
+        <div class="modal-content receipt-modal">
+            <h2>Resumen de Venta</h2>
+            <div id="receiptContent" class="receipt-content"></div>
+            <div class="modal-buttons">
+                <button onclick="printReceipt()" class="btn-primary">Imprimir Recibo</button>
+                <button onclick="continueSale()" class="btn-secondary">Continuar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Ver Registro de Ventas -->
+    <div id="salesRecordModal" class="modal">
+        <div class="modal-content large-modal">
+            <span class="close" onclick="closeSalesRecordModal()">&times;</span>
+            <h2>Registro de Ventas</h2>
+            <div id="salesRecordContent" class="sales-record-content"></div>
+        </div>
+    </div>
+
+    <script src="script/script.js"></script>
+</body>
+
+</html>
