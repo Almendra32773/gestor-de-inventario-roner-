@@ -452,10 +452,121 @@ function showProductDetail(product) {
             <p><strong>Precio:</strong> ${formatCurrency(product.price)}</p>
             ${convertedPrice ? `<p><strong>Precio convertido:</strong> ${convertedPrice}</p>` : ''}
             <p><strong>Stock:</strong> ${stockDisplay}</p>
+            <button class="btn-inventory" onclick="printProductSingle('${product.id}')">Imprimir</button>
         </div>
     `;
 }
 
+// Imprimir un solo producto
+function printProductSingle(productId) {
+    const product = inventory.find(p => p.id === productId);
+    if (!product) return;
+    let printContent = `
+        <html>
+        <head>
+            <title>Inventario - ${settings.storeName}</title>
+            <style>
+                @page {
+                    size: ${settings.printerWidth}mm auto;
+                    margin: 20mm;
+                }
+                body { 
+                    font-family: Arial, sans-serif; 
+                    width: ${settings.printerWidth}mm;
+                    margin: 0;
+                    padding: 0;
+                }
+                .product-page {
+                    page-break-after: always;
+                    padding: 10px;
+                }
+                .product-page:last-child {
+                    page-break-after: auto;
+                }
+                .header {
+                    text-align: center;
+                    margin-bottom: 15px;
+                    border-bottom: 2px solid #000;
+                    padding-bottom: 10px;
+                }
+                .store-name {
+                    font-size: 1.4em;
+                    font-weight: bold;
+                    margin: 0;
+                }
+                .product-info {
+                    margin-top: 15px;
+                }
+                .info-row {
+                    margin: 8px 0;
+                    display: flex;
+                    justify-content: space-between;
+                }
+                .info-label {
+                    font-weight: bold;
+                }
+                .info-value {
+                    text-align: right;
+                }
+                .product-name {
+                    font-size: 2em;
+                    font-weight: bold;
+                    margin: 10px 0;
+                    text-align: center;
+                }
+            </style>
+        </head>
+        <body>
+    `;
+        const convertedPrice = settings.convertTo && settings.convertTo !== settings.currency
+            ? formatCurrency(product.price * settings.conversionRate, settings.convertTo) 
+            : '';
+        
+        printContent += `
+            <div class="product-page">
+                <hr>
+                <div class="product-name">${product.name}</div>
+                
+                <div class="product-info">
+                    <div class="info-row">
+                        <span class="info-label">Código de Barras:</span>
+                        <span class="info-value">${product.barcode || 'N/A'}</span>
+                    </div>
+                    
+                    <div class="info-row">
+                        <span class="info-label">Tamaño:</span>
+                        <span class="info-value">${product.size || 'N/A'}</span>
+                    </div>
+                    
+                    <div class="info-row">
+                        <span class="info-label">Precio/Unidad:</span>
+                        <span class="info-value">${formatCurrency(product.price)}</span>
+                    </div>
+                    
+                    ${convertedPrice ? `
+                    <div class="info-row">
+                        <span class="info-label">Precio Bs:</span>
+                        <span class="info-value">${convertedPrice}</span>
+                    </div>
+                    ` : ''}
+                    
+                </div>
+                <hr>
+            </div>
+        `;
+    
+    printContent += `
+        </body>
+        </html>
+    `;
+    const printWindow = window.open('', '', 'width=600,height=600');
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
+};
+                
 // Formatear stock
 function formatStock(product) {
     if (product.stockType === 'units') {
@@ -740,7 +851,7 @@ function printInventory() {
                     text-align: right;
                 }
                 .product-name {
-                    font-size: 1.2em;
+                    font-size: 2em;
                     font-weight: bold;
                     margin: 10px 0;
                     text-align: center;
@@ -780,7 +891,7 @@ function printInventory() {
                     
                     ${convertedPrice ? `
                     <div class="info-row">
-                        <span class="info-label">Precio Convert:</span>
+                        <span class="info-label">Precio Bs:</span>
                         <span class="info-value">${convertedPrice}</span>
                     </div>
                     ` : ''}
