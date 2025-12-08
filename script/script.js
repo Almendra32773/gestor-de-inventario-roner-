@@ -478,7 +478,7 @@ function printProductSingle(productId) {
                 }
                 .product-page {
                     page-break-after: always;
-                    padding: 10px;
+                    padding: 8px;
                 }
                 .product-page:last-child {
                     page-break-after: auto;
@@ -507,6 +507,7 @@ function printProductSingle(productId) {
                 }
                 .info-value {
                     text-align: right;
+                    margin-right: 10px;
                 }
                 .product-name {
                     font-size: 2em;
@@ -539,7 +540,7 @@ function printProductSingle(productId) {
                     </div>
                     
                     <div class="info-row">
-                        <span class="info-label">Precio/Unidad:</span>
+                        <span class="info-label">Precio/Und:</span>
                         <span class="info-value">${formatCurrency(product.price)}</span>
                     </div>
                     
@@ -820,7 +821,7 @@ function printInventory() {
                 }
                 .product-page {
                     page-break-after: always;
-                    padding: 10px;
+                    padding: 8px;
                 }
                 .product-page:last-child {
                     page-break-after: auto;
@@ -849,6 +850,7 @@ function printInventory() {
                 }
                 .info-value {
                     text-align: right;
+                    margin-right: 10px;
                 }
                 .product-name {
                     font-size: 2em;
@@ -885,7 +887,7 @@ function printInventory() {
                     </div>
                     
                     <div class="info-row">
-                        <span class="info-label">Precio/Unidad:</span>
+                        <span class="info-label">Precio/Und:</span>
                         <span class="info-value">${formatCurrency(product.price)}</span>
                     </div>
                     
