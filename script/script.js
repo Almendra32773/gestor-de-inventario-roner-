@@ -15,6 +15,10 @@ let settings = {
 let scannerActive = false;
 let editMode = false;
 let editingProductId = null;
+// Cloudinary (reemplaza con tus datos reales)
+const cloudName = "dett4nahi";          // lo ves en el dashboard
+const uploadPreset = "inventario_unsigned"; // nombre del upload preset
+
 
 // Inicialización
 document.addEventListener('DOMContentLoaded', function() {
@@ -409,10 +413,10 @@ function renderInventory() {
             }
         }
         
-        const imgSrc = product.image || 'https://via.placeholder.com/150?text=Sin+Imagen';
+        const imgSrc = product.image || '/logodepestaña/Captura de pantalla 2025-11-19 143222.ico';
         
         card.innerHTML = `
-            <img src="${imgSrc}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/150?text=Sin+Imagen'">
+            <img src="${imgSrc}" alt="${product.name}" onerror="this.src='/logodepestaña/Captura de pantalla 2025-11-19 143222.ico'">
             <p><strong>${product.name.substring(0, 35)}</strong></p>
             <p>${product.size || ''}</p>
         `;
@@ -437,7 +441,7 @@ function renderInventory() {
 function showProductDetail(product) {
     const sidebar = document.getElementById('inventorySidebar');
     
-    const imgSrc = product.image || 'https://via.placeholder.com/250?text=Sin+Imagen';
+    const imgSrc = product.image || '/logodepestaña/Captura de pantalla 2025-11-19 143222.ico';
     const stockDisplay = formatStock(product);
     const convertedPrice = settings.convertTo && settings.convertTo !== settings.currency 
         ? formatCurrency(product.price * settings.conversionRate, settings.convertTo) 
@@ -445,7 +449,7 @@ function showProductDetail(product) {
     
     sidebar.innerHTML = `
         <div class="product-detail">
-            <img src="${imgSrc}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/250?text=Sin+Imagen'">
+            <img src="${imgSrc}" alt="${product.name}" onerror="this.src='/logodepestaña/Captura de pantalla 2025-11-19 143222.ico'">
             <h3>${product.name}</h3>
             <p><strong>Código:</strong> ${product.barcode || 'N/A'}</p>
             <p><strong>Tamaño:</strong> ${product.size || 'N/A'}</p>
@@ -684,7 +688,7 @@ function updateStockInputs() {
 }
 
 // Agregar o actualizar producto
-document.getElementById('addProductForm').addEventListener('submit', function(e) {
+document.getElementById('addProductForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
     const name = document.getElementById('productName').value.trim();
@@ -729,6 +733,26 @@ document.getElementById('addProductForm').addEventListener('submit', function(e)
         alert('Producto ya existe. Stock sumado al producto existente.');
         return;
     }
+
+    // 1. Determinar URL de imagen (Cloudinary / URL directa / fallback local)
+    let finalImageUrl = '';
+
+    try {
+        if (imageFile) {
+            //subir a Cloudinary
+            finalImageUrl = await uploadImageToCloudinary(imageFile);
+        } else if (imageUrlInput) {
+            // Usar URL directa escrita por el usuario
+            finalImageUrl = imageUrlInput;
+        } else {
+            // Fallback local
+            finalImageUrl = '/logodepestaña/Captura de pantalla 2025-11-19 143222.ico';
+        }
+    } catch (error) {
+        console.error(error);
+        alert('No se pudo subir la imagen. se uasará imagen por defecto.');
+        finalImageUrl = '/logodepestaña/Captura de pantalla 2025-11-19 143222.ico';
+    }
     
     if (editingProductId) {
         // Modo edición - actualizar producto existente
@@ -742,7 +766,7 @@ document.getElementById('addProductForm').addEventListener('submit', function(e)
             product.unitsPerContainer = stockPerContainer;
             product.totalUnits = totalUnits;
             product.initialStock = totalUnits;
-            product.image = imageUrl || (imageFile ? URL.createObjectURL(imageFile) : product.image);
+            product.image = finalImageUrl || product.image;
         }
         alert('Producto actualizado exitosamente');
     } else {
@@ -757,7 +781,7 @@ document.getElementById('addProductForm').addEventListener('submit', function(e)
             unitsPerContainer: stockPerContainer,
             totalUnits: totalUnits,
             initialStock: totalUnits,
-            image: imageUrl || (imageFile ? URL.createObjectURL(imageFile) : '')
+            image: finalImageUrl
         };
         
         inventory.push(product);
@@ -766,6 +790,7 @@ document.getElementById('addProductForm').addEventListener('submit', function(e)
     
     saveData();
     renderInventory();
+    removeZeroStockProducts();
     closeAddProductModal();
 });
 
@@ -1120,6 +1145,27 @@ function checkAutoDelete() {
 }
 
 // ==================== UTILIDADES ====================
+
+// Subir imagen a Cloudinary y devolver la URL
+async function subirImagenACloudinary(file) {
+    const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", uploadPreset);
+
+    const res = await fetch(url, {
+        method: "POST",
+        body: formData
+    });
+
+    if (!res.ok) {
+        throw new Error("Error al subir imagen a Cloudinary");
+    }
+
+    const data = await res.json();
+    return data.secure_url; // URL pública de la imagen
+}
+
 
 // Formatear moneda
 function formatCurrency(amount, currency = settings.currency) {
