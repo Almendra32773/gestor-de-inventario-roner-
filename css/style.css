@@ -102,6 +102,35 @@ body {
     transition: all 0.3s;
 }
 
+/* Agrega estos estilos específicos para el botón backup */
+#backupBtn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+#backupBtn:hover {
+    background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+}
+
+/* Estilos para el modal de backup */
+#backupModal {
+    font-family: Arial, sans-serif;
+}
+
+#backupModal h2 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+#backupModal button {
+    margin: 5px 0;
+    transition: all 0.3s;
+}
+
+#backupModal button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
 .nav-btn:hover {
     background: #e0e0e0;
     transform: translateY(-2px);
