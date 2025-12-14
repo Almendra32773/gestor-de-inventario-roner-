@@ -32,6 +32,7 @@
         <nav class="navbar">
             <button onclick="showSection('nuevaVenta')" class="nav-btn active" id="navNuevaVenta">Nueva Venta</button>
             <button onclick="showSection('inventario')" class="nav-btn" id="navInventario">Inventario</button>
+            <button class="nav-btn" id="navBackup" onclick="mostrarPanelBackup()" title="Gestionar backups y exportar datos">💾 Backup</button>
             <button onclick="showSection('configuracion')" class="nav-btn" id="navConfiguracion">Configuración</button>
         </nav>
 
@@ -236,7 +237,9 @@
             <div id="salesRecordContent" class="sales-record-content"></div>
         </div>
     </div>
-
+    <!-- libreria de codigo de barras   -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.12.1/dist/JsBarcode.all.min.js"></script>
+    <!-- script de la app -->
     <script src="script/script.js"></script>
 </body>
 
