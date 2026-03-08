@@ -349,8 +349,8 @@ class BackupManager {
         this.claveBackup = 'inventario_backup';
         this.claveImagenes = 'imagenes_cache';
         this.claveMetadata = 'app_metadata';
-        this.maxBackups = 5;
-        this.maxImagenesCache = 15;
+        this.maxBackups = 3;
+        this.maxImagenesCache = 8;
         this.init();
     }
     
@@ -403,6 +403,13 @@ class BackupManager {
     
     crearBackupAutomatico() {
         try {
+            // Verificar espacio ANTES de crear backup
+            const espacioUsado = JSON.stringify(localStorage).length;
+            if (espacioUsado > 4 * 1024 * 1024) { // 4MB
+                console.warn('⚠️ Espacio casi lleno, omitiendo backup automático');
+                this.limpiarBackupsAntiguos(true); // Forzar limpieza
+                return;
+            }
             const timestamp = new Date().toISOString();
             const backupData = {
                 inventory: JSON.parse(localStorage.getItem('inventory') || '[]'),
@@ -420,6 +427,8 @@ class BackupManager {
             
         } catch (error) {
             console.error('❌ Error creando backup:', error);
+            // Si falla, limpiar backups antiguos
+            this.limpiarBackupsAntiguos(true);
         }
     }
     
@@ -468,7 +477,7 @@ class BackupManager {
         }
     }
     
-    limpiarBackupsAntiguos() {
+    limpiarBackupsAntiguos(forzar = false) {
         const backups = [];
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
@@ -480,11 +489,14 @@ class BackupManager {
         
         backups.sort((a, b) => b.timestamp - a.timestamp);
         
-        if (backups.length > this.maxBackups) {
-            const eliminar = backups.slice(this.maxBackups);
+        // Si forzar es true, dejar solo 1 backup
+        const maxGuardar = forzar ? 1 : this.maxBackups;
+        
+        if (backups.length > maxGuardar) {
+            const eliminar = backups.slice(maxGuardar);
             eliminar.forEach(b => {
                 localStorage.removeItem(b.key);
-                console.log('🗑️ Backup eliminado:', b.key);
+                console.log('🗑️ Backup eliminado (espacio):', b.key);
             });
         }
     }
@@ -2290,6 +2302,8 @@ function renderProductWithImage(product, container) {
     
     const img = document.createElement('img');
     const imgSrc = getValidImageUrl(product.image);
+    // Usar loading="lazy" para mejorar rendimiento
+    img.loading = "lazy";
     img.src = imgSrc;
     img.alt = product.name;
     
