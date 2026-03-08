@@ -1307,51 +1307,51 @@ function registerSale(paymentMethod) {
     });
     
     sales.push(sale);
-    saveData();
-    removeZeroStockProducts();
-    checkLowStock();
+    saveData();  // Guarda en localStorage
     
-    // ✅ NUEVO: Sincronizar venta con Supabase
-    // En registerSale(), después de sales.push(sale);
+    // Sincronizar con Supabase
     if (window.usarSupabase && window.supabaseClient) {
         setTimeout(async () => {
             try {
+                // Registrar venta en Supabase
                 const ventaData = {
                     id: saleId,
-                    date: now.toISOString(), // Usar formato ISO
+                    date: now.toISOString(),
                     paymentmethod: paymentMethod,
                     total: total,
                     items: cart
                 };
                 
-                console.log('💰 Registrando venta en Supabase:', ventaData);
-                
-                const { data, error } = await window.supabaseClient
+                const { error } = await window.supabaseClient
                     .from('ventas')
-                    .insert([ventaData]);
+                    .upsert([ventaData], { onConflict: 'id' });
                 
                 if (error) {
                     console.error('❌ Error registrando venta:', error);
                 } else {
                     console.log('✅ Venta registrada en Supabase');
                     
-                    // Actualizar stock de cada producto en Supabase
+                    // Actualizar stock en Supabase
                     for (const cartItem of cart) {
                         const product = inventory.find(p => p.id === cartItem.id);
                         if (product) {
                             await window.supabaseClient
                                 .from('productos')
-                                .update({ 
-                                    totalunits: product.totalUnits 
-                                })
+                                .update({ totalunits: product.totalUnits })
                                 .eq('id', product.id);
                         }
                     }
+                    
+                    // 🔴 NUEVO: Eliminar productos con stock 0 en Supabase
+                    await removeZeroStockProducts();
                 }
             } catch (error) {
                 console.error('⚠️ Error en registro Supabase:', error);
             }
         }, 100);
+    } else {
+        // Si no hay Supabase, igual eliminar productos localmente
+        removeZeroStockProducts();
     }
     
     // Mostrar resumen
@@ -1564,7 +1564,9 @@ function continueSale() {
     document.getElementById('saleModal').style.display = 'none';
     cart = [];
     updateCart();
-    removeZeroStockProducts();
+    // removeZeroStockProducts() ya se llamó en registerSale
+    // Pero por si acaso:
+    setTimeout(() => removeZeroStockProducts(), 10);
 }
 
 // Cancelar venta
@@ -1972,10 +1974,68 @@ function checkLowStock() {
 
 //remover producto si se acaba el stock
 // Eliminar del inventario todos los productos con stock 0
-function removeZeroStockProducts() {
+// Eliminar del inventario todos los productos con stock 0 (MEJORADA)
+async function removeZeroStockProducts() {
+    console.log('🔍 Verificando productos con stock 0...');
+    
+    // Identificar productos con stock 0
+    const productosAEliminar = inventory.filter(p => p.totalUnits <= 0);
+    
+    if (productosAEliminar.length === 0) {
+        console.log('✅ No hay productos con stock 0');
+        return;
+    }
+    
+    console.log(`🗑️ Eliminando ${productosAEliminar.length} productos con stock 0:`);
+    productosAEliminar.forEach(p => console.log(`   - ${p.name} (ID: ${p.id})`));
+    
+    // 1. Guardar IDs para eliminar en Supabase
+    const idsAEliminar = productosAEliminar.map(p => p.id);
+    
+    // 2. Eliminar localmente
     inventory = inventory.filter(p => p.totalUnits > 0);
-    saveData();      // ya la tienes, guarda en localStorage
-    renderInventory(); 
+    
+    // 3. Guardar en localStorage
+    await saveData(); // Esto ya guarda en localStorage
+    
+    // 4. Eliminar en Supabase (si está conectado)
+    if (window.usarSupabase && window.supabaseClient && idsAEliminar.length > 0) {
+        console.log('🔄 Sincronizando eliminación con Supabase...');
+        
+        let eliminados = 0;
+        for (const id of idsAEliminar) {
+            try {
+                const { error } = await window.supabaseClient
+                    .from('productos')
+                    .delete()
+                    .eq('id', id);
+                
+                if (error) {
+                    console.error(`❌ Error eliminando producto ${id} en Supabase:`, error);
+                } else {
+                    eliminados++;
+                    console.log(`✅ Producto ${id} eliminado de Supabase`);
+                }
+            } catch (error) {
+                console.error(`❌ Error en eliminación de ${id}:`, error);
+            }
+            
+            // Pequeña pausa para no saturar la API
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        
+        console.log(`📊 Eliminación completada: ${eliminados}/${idsAEliminar.length} productos en Supabase`);
+        
+        if (eliminados < idsAEliminar.length) {
+            console.warn('⚠️ Algunos productos no se eliminaron en Supabase');
+        }
+    }
+    
+    // 5. Renderizar inventario actualizado
+    renderInventory();
+    
+    console.log(`✅ Inventario actualizado: ${inventory.length} productos restantes`);
+    return productosAEliminar.length;
 }
 
 // ==================== CONFIGURACIÓN ====================
