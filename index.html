@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="logodepestaña/Captura de pantalla 2025-11-19 143222.ico" type="image/png">
+    <link rel="icon" href="icon/icon.ico" type="image/png">
     <title>Market</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -23,7 +23,7 @@
 
     <!-- Aplicación Principal -->
     <div id="mainApp" class="main-app" style="display: none;">
-        <!-- Encabezado -->
+        <!-- Encabezado con logo -->
         <header class="header">
             <h1 id="storeName">Market</h1>
         </header>
@@ -32,144 +32,147 @@
         <nav class="navbar">
             <button onclick="showSection('nuevaVenta')" class="nav-btn active" id="navNuevaVenta">Nueva Venta</button>
             <button onclick="showSection('inventario')" class="nav-btn" id="navInventario">Inventario</button>
-            <button class="nav-btn" id="navBackup" onclick="mostrarPanelBackup()" title="Gestionar backups y exportar datos">💾 Backup</button>
+            <button class="nav-btn" id="navBackup" onclick="mostrarPanelBackup()">💾 Backup</button>
+            <button class="nav-btn" onclick="toggleScanner()" id="navScanner">📷 Escáner</button>
             <button onclick="showSection('configuracion')" class="nav-btn" id="navConfiguracion">Configuración</button>
         </nav>
 
-        <!-- Ventana Nueva Venta -->
-        <div id="nuevaVenta" class="section active">
-            <div class="nueva-venta-container">
-                <div class="search-section">
-                    <input type="text" id="searchInput" class="search-input" placeholder="Buscar por nombre o código...">
-                    <button onclick="addProductToCart()" class="btn-add">Agregar</button>
-                    <div id="searchResults" class="search-results"></div>
-                </div>
-
-                <div class="cart-section">
-                    <h2>Carrito</h2>
-                    <div id="cartContainer" class="cart-container" onclick="activateScanner()">
-                        <table class="cart-table">
-                            <thead>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Tamaño</th>
-                                    <th>Cantidad (Unds)</th>
-                                    <th>Precio/U</th>
-                                    <th>Precio</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody id="cartBody">
-                            </tbody>
-                        </table>
+        <!-- Sección Principal -->
+        <main>
+            <!-- Ventana Nueva Venta -->
+            <section id="nuevaVenta" class="section active">
+                <div class="nueva-venta-container">
+                    <div class="search-section">
+                        <input type="text" id="searchInput" class="search-input" placeholder="Buscar por nombre o código...">
+                        <button onclick="addProductToCart()" class="btn-add">Agregar</button>
+                        <div id="searchResults" class="search-results"></div>
                     </div>
-                    <p class="scanner-status" id="scannerStatus"></p>
-                </div>
 
-                <div class="payment-section">
-                    <div class="total-container">
-                        <h3>Total</h3>
-                        <p class="total-amount" id="totalAmount">$0.00</p>
-                        <p class="converted-amount" id="convertedAmount"></p>
+                    <div class="cart-section">
+                        <h2>Carrito</h2>
+                        <div id="cartContainer" class="cart-container" onclick="activateScanner()">
+                            <table class="cart-table">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Tamaño</th>
+                                        <th>Cantidad (Unds)</th>
+                                        <th>Precio/U</th>
+                                        <th>Precio</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cartBody"></tbody>
+                            </table>
+                        </div>
+                        <p class="scanner-status" id="scannerStatus"></p>
                     </div>
-                    <div class="payment-buttons">
-                        <button onclick="registerSale('Punto de Venta')" class="btn-payment">Punto de Venta</button>
-                        <button onclick="registerSale('Transferencia')" class="btn-payment">Transferencia</button>
-                        <button onclick="registerSale('Pago P2P')" class="btn-payment">Pago P2P</button>
-                        <button onclick="registerSale('Efectivo')" class="btn-payment">Efectivo</button>
-                        <button onclick="registerSale('Biopago')" class="btn-payment">Biopago</button>
-                        <button onclick="registerSale('Divisas')" class="btn-payment">Divisas</button>
-                    </div>
-                    <button onclick="cancelSale()" class="btn-cancel">Cancelar Venta</button>
-                </div>
-            </div>
-        </div>
 
-        <!-- Ventana Inventario -->
-        <div id="inventario" class="section">
-            <div class="inventory-container">
-                <div class="inventory-sidebar" id="inventorySidebar">
-                    <p class="sidebar-placeholder">Seleccione un producto para ver detalles</p>
+                    <div class="payment-section">
+                        <div class="total-container">
+                            <h3>Total</h3>
+                            <p class="total-amount" id="totalAmount">$0.00</p>
+                            <p class="converted-amount" id="convertedAmount"></p>
+                        </div>
+                        <div class="payment-buttons">
+                            <button onclick="registerSale('Punto de Venta')" class="btn-payment">Punto de Venta</button>
+                            <button onclick="registerSale('Transferencia')" class="btn-payment">Transferencia</button>
+                            <button onclick="registerSale('Pago P2P')" class="btn-payment">Pago P2P</button>
+                            <button onclick="registerSale('Efectivo')" class="btn-payment">Efectivo</button>
+                            <button onclick="registerSale('Biopago')" class="btn-payment">Biopago</button>
+                            <button onclick="registerSale('Divisas')" class="btn-payment">Divisas</button>
+                            <button onclick="showCombinedPaymentModal()" class="btn-payment btn-combined">Pago Combinado</button>
+                        </div>
+                        <button onclick="cancelSale()" class="btn-cancel">Cancelar Venta</button>
+                    </div>
                 </div>
-                <div class="inventory-grid" id="inventoryGrid">
+            </section>
+
+            <!-- Ventana Inventario -->
+            <section id="inventario" class="section">
+                <div class="inventory-container">
+                    <aside class="inventory-sidebar" id="inventorySidebar">
+                        <p class="sidebar-placeholder">Seleccione un producto para ver detalles</p>
+                    </aside>
+                    <div class="inventory-grid" id="inventoryGrid"></div>
+                </div>
+                <div class="inventory-navbar">
+                    <button onclick="showAddProductModal()" class="btn-inventory">Agregar Producto</button>
+                    <button onclick="deleteInventory()" class="btn-config btn-danger">Eliminar Inventario</button>
+                    <button onclick="editInventory()" class="btn-inventory">Editar Inventario</button>
+                    <button onclick="printInventory()" class="btn-inventory">Imprimir Inventario</button>
+                    <button onclick="reloadProductImages()" class="btn-inventory">🔄 Recargar Imágenes</button>
+                </div>
+            </section>
+
+            <!-- Ventana Configuración -->
+            <section id="configuracion" class="section">
+                <div class="config-container">
+                    <h2>Configuración</h2>
                     
-                </div>
-            </div>
-            <div class="inventory-navbar">
-                <button onclick="showAddProductModal()" class="btn-inventory">Agregar Producto</button>
-                <button onclick="deleteInventory()" class="btn-inventory">Eliminar Inventario</button>
-                <button onclick="editInventory()" class="btn-inventory">Editar Inventario</button>
-                <button onclick="printInventory()" class="btn-inventory">Imprimir Inventario</button>
-            </div>
-        </div>
+                    <div class="config-group">
+                        <label>Moneda a utilizar:</label>
+                        <select id="currencySelect" class="config-select">
+                            <option value="USD">Dólares Estadounidenses (USD)</option>
+                            <option value="EUR">Euros (EUR)</option>
+                            <option value="BS">Bolívares (Bs)</option>
+                        </select>
+                    </div>
 
-        <!-- Ventana Configuración -->
-        <div id="configuracion" class="section">
-            <div class="config-container">
-                <h2>Configuración</h2>
-                
-                <div class="config-group">
-                    <label>Moneda a utilizar:</label>
-                    <select id="currencySelect" class="config-select">
-                        <option value="USD">Dólares Estadounidenses (USD)</option>
-                        <option value="EUR">Euros (EUR)</option>
-                        <option value="BS">Bolívares (Bs)</option>
-                    </select>
-                </div>
+                    <div class="config-group">
+                        <label>Convertir a:</label>
+                        <select id="convertToSelect" class="config-select">
+                            <option value="">No convertir</option>
+                            <option value="USD">Dólares Estadounidenses (USD)</option>
+                            <option value="EUR">Euros (EUR)</option>
+                            <option value="BS">Bolívares (Bs)</option>
+                        </select>
+                        <input type="number" id="conversionRate" class="config-input" placeholder="Tasa de conversión" step="0.01">
+                    </div>
 
-                <div class="config-group">
-                    <label>Convertir a:</label>
-                    <select id="convertToSelect" class="config-select">
-                        <option value="">No convertir</option>
-                        <option value="USD">Dólares Estadounidenses (USD)</option>
-                        <option value="EUR">Euros (EUR)</option>
-                        <option value="BS">Bolívares (Bs)</option>
-                    </select>
-                    <input type="number" id="conversionRate" class="config-input" placeholder="Tasa de conversión" step="0.01">
-                </div>
+                    <div class="config-group">
+                        <label>PIN de autenticación:</label>
+                        <input type="password" id="newPin" class="config-input" placeholder="Nuevo PIN (4-32 dígitos)" maxlength="32">
+                        <input type="password" id="confirmPin" class="config-input" placeholder="Confirmar PIN" maxlength="32">
+                    </div>
 
-                <div class="config-group">
-                    <label>PIN de autenticación:</label>
-                    <input type="password" id="newPin" class="config-input" placeholder="Nuevo PIN (4-32 dígitos)" maxlength="32">
-                    <input type="password" id="confirmPin" class="config-input" placeholder="Confirmar PIN" maxlength="32">
-                </div>
+                    <div class="config-group">
+                        <label>Nombre de la tienda:</label>
+                        <input type="text" id="storeNameInput" class="config-input" placeholder="Nombre de la tienda">
+                    </div>
 
-                <div class="config-group">
-                    <label>Nombre de la tienda:</label>
-                    <input type="text" id="storeNameInput" class="config-input" placeholder="Nombre de la tienda">
-                </div>
+                    <div class="config-group">
+                        <label>Aviso de Stock (%):</label>
+                        <input type="number" id="stockWarning" class="config-input" value="20" min="1" max="100">
+                    </div>
 
-                <div class="config-group">
-                    <label>Aviso de Stock (%):</label>
-                    <input type="number" id="stockWarning" class="config-input" value="20" min="1" max="100">
-                </div>
+                    <div class="config-group">
+                        <label>Borrar registro de ventas automáticamente:</label>
+                        <select id="autoDeleteSales" class="config-select">
+                            <option value="never">No borrar nunca</option>
+                            <option value="weekly">Borrar cada semana</option>
+                            <option value="monthly">Borrar cada mes</option>
+                            <option value="yearly">Borrar anualmente</option>
+                        </select>
+                    </div>
 
-                <div class="config-group">
-                    <label>Borrar registro de ventas automáticamente:</label>
-                    <select id="autoDeleteSales" class="config-select">
-                        <option value="never">No borrar nunca</option>
-                        <option value="weekly">Borrar cada semana</option>
-                        <option value="monthly">Borrar cada mes</option>
-                        <option value="yearly">Borrar anualmente</option>
-                    </select>
-                </div>
+                    <div class="config-group">
+                        <label>Ajuste de impresora (ancho en mm):</label>
+                        <input type="number" id="printerWidth" class="config-input" value="55" min="40" max="80">
+                    </div>
 
-                <div class="config-group">
-                    <label>Ajuste de impresora (ancho en mm):</label>
-                    <input type="number" id="printerWidth" class="config-input" value="55" min="40" max="80">
+                    <div class="config-buttons">
+                        <button onclick="saveSettings()" class="btn-config">Guardar Ajustes</button>
+                        <button onclick="viewSalesRecord()" class="btn-config">Ver Registro de Ventas</button>
+                        <button onclick="exportSalesRecord()" class="btn-config">Exportar Registro (PDF)</button>
+                        <button onclick="deleteSalesRecord()" class="btn-config btn-danger">Borrar Registro de Ventas</button>
+                    </div>
                 </div>
-
-                <div class="config-buttons">
-                    <button onclick="saveSettings()" class="btn-config">Guardar Ajustes</button>
-                    <button onclick="viewSalesRecord()" class="btn-config">Ver Registro de Ventas</button>
-                    <button onclick="exportSalesRecord()" class="btn-config">Exportar Registro (PDF)</button>
-                    <button onclick="deleteSalesRecord()" class="btn-config btn-danger">Borrar Registro de Ventas</button>
-                </div>
-            </div>
-        </div>
+            </section>
+        </main>
     </div>
 
-    <!-- Modal Agregar Producto -->
+    <!-- Modales -->
     <div id="addProductModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeAddProductModal()">&times;</span>
@@ -217,7 +220,6 @@
         </div>
     </div>
 
-    <!-- Modal Resumen de Venta -->
     <div id="saleModal" class="modal">
         <div class="modal-content receipt-modal">
             <h2>Resumen de Venta</h2>
@@ -229,7 +231,31 @@
         </div>
     </div>
 
-    <!-- Modal Ver Registro de Ventas -->
+    <!-- MODAL DE PAGO COMBINADO (agregar después del modal de ventas) -->
+    <div id="combinedPaymentModal" class="modal">
+        <div class="modal-content large-modal">
+            <span class="close" onclick="closeCombinedPaymentModal()">&times;</span>
+            <h2>Pago Combinado</h2>
+            <div id="combinedPaymentContent">
+                <div class="combined-summary">
+                    <h3>Resumen de Venta</h3>
+                    <p><strong>Total a pagar:</strong> <span id="combinedTotalAmount">$0.00</span></p>
+                    <p><strong>Restante:</strong> <span id="remainingAmount">$0.00</span></p>
+                </div>
+                
+                <div class="combined-methods" id="combinedMethods">
+                    <!-- Los métodos de pago se generarán dinámicamente -->
+                </div>
+                
+                <div class="combined-controls">
+                    <button onclick="addPaymentMethod()" class="btn-secondary">+ Agregar Método de Pago</button>
+                    <button onclick="processCombinedPayment()" class="btn-primary" id="processCombinedBtn">Procesar Pago</button>
+                    <button onclick="closeCombinedPaymentModal()" class="btn-cancel">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="salesRecordModal" class="modal">
         <div class="modal-content large-modal">
             <span class="close" onclick="closeSalesRecordModal()">&times;</span>
@@ -237,8 +263,129 @@
             <div id="salesRecordContent" class="sales-record-content"></div>
         </div>
     </div>
-    <!-- script de la app -->
-    <script src="script/script.js"></script>
-</body>
 
+    <!-- Scripts -->
+    <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.min.js"></script>
+    
+    <script>
+        // Configuración Supabase
+        window.SUPABASE_CONFIG = {
+            url: 'https://tlzlpwxjzuhamsjmynee.supabase.co',
+            key: 'sb_publishable_jc59qyQN3hcmU7kW2YqBYw_oZ6E5HHd'
+        };
+        
+        window.supabaseClient = null;
+        window.usarSupabase = false;
+        
+        function inicializarSupabase() {
+            try {
+                console.log('🔄 Inicializando Supabase...');
+                
+                if (typeof supabase === 'undefined') {
+                    console.warn('❌ CDN de Supabase no cargado');
+                    window.usarSupabase = false;
+                    return false;
+                }
+                
+                if (!window.SUPABASE_CONFIG.url || !window.SUPABASE_CONFIG.key) {
+                    console.warn('❌ Credenciales de Supabase no configuradas');
+                    window.usarSupabase = false;
+                    return false;
+                }
+                
+                const urlCorrecta = 'https://tlzlpwxjzuhamsjmynee.supabase.co';
+                if (window.SUPABASE_CONFIG.url !== urlCorrecta) {
+                    window.SUPABASE_CONFIG.url = urlCorrecta;
+                }
+                
+                window.supabaseClient = supabase.createClient(
+                    window.SUPABASE_CONFIG.url,
+                    window.SUPABASE_CONFIG.key
+                );
+                
+                console.log('✅ Supabase inicializado correctamente');
+                window.usarSupabase = true;
+                return true;
+                
+            } catch (error) {
+                console.error('❌ Error inicializando Supabase:', error);
+                window.usarSupabase = false;
+                return false;
+            }
+        }
+        
+        async function probarConexionSupabase() {
+            if (!window.supabaseClient) return false;
+            
+            try {
+                const { data, error } = await window.supabaseClient
+                    .from('productos')
+                    .select('count')
+                    .limit(1);
+                
+                if (error) {
+                    console.error('❌ Error de conexión:', error.message);
+                    return false;
+                }
+                
+                console.log('✅ Conexión con Supabase exitosa');
+                return true;
+                
+            } catch (error) {
+                console.error('❌ Error en prueba de conexión:', error);
+                return false;
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Aplicación cargando...');
+            
+            setTimeout(() => {
+                const supabaseInicializado = inicializarSupabase();
+                
+                if (supabaseInicializado) {
+                    setTimeout(async () => {
+                        const conexionExitosa = await probarConexionSupabase();
+                        window.usarSupabase = conexionExitosa;
+                        
+                        if (conexionExitosa) {
+                            console.log('🌐 Modo: Supabase + localStorage (sincronizado)');
+                        } else {
+                            console.log('📴 Modo: Solo localStorage (sin conexión)');
+                        }
+                    }, 500);
+                } else {
+                    console.log('📴 Modo: Solo localStorage (Supabase no configurado)');
+                }
+            }, 1000);
+        });
+        
+        window.diagnosticoSupabase = function() {
+            console.log('=== DIAGNÓSTICO SUPABASE ===');
+            console.log('1. supabase (CDN) existe?', typeof supabase !== 'undefined');
+            console.log('2. supabase.createClient existe?', typeof supabase?.createClient !== 'undefined');
+            console.log('3. window.supabaseClient existe?', typeof window.supabaseClient !== 'undefined');
+            console.log('4. window.usarSupabase:', window.usarSupabase);
+            console.log('5. Config URL:', window.SUPABASE_CONFIG.url);
+            console.log('6. Config KEY:', window.SUPABASE_CONFIG.key ? '✓ ' + window.SUPABASE_CONFIG.key.length + ' chars' : '✗');
+            console.log('============================');
+        };
+    </script>
+    
+    <script src="scripts/script.js"></script>
+    <script src="scripts/print-manager.js"></script>
+    
+    <script>
+        setTimeout(() => {
+            if (window.supabaseClient) {
+                window.supabase = window.supabaseClient;
+                console.log('🔧 Compatibilidad establecida: window.supabase = window.supabaseClient');
+            }
+            
+            setTimeout(() => {
+                window.diagnosticoSupabase();
+            }, 1500);
+        }, 1000);
+    </script>
+</body>
 </html>
