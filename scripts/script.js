@@ -349,8 +349,8 @@ class BackupManager {
         this.claveBackup = 'inventario_backup';
         this.claveImagenes = 'imagenes_cache';
         this.claveMetadata = 'app_metadata';
-        this.maxBackups = 3;
-        this.maxImagenesCache = 8;
+        this.maxBackups = 2;
+        this.maxImagenesCache = 5;
         this.init();
     }
     
@@ -402,33 +402,39 @@ class BackupManager {
     }
     
     crearBackupAutomatico() {
-        try {
-            // Verificar espacio ANTES de crear backup
-            const espacioUsado = JSON.stringify(localStorage).length;
-            if (espacioUsado > 4 * 1024 * 1024) { // 4MB
-                console.warn('⚠️ Espacio casi lleno, omitiendo backup automático');
-                this.limpiarBackupsAntiguos(true); // Forzar limpieza
-                return;
+        // Verificar espacio ANTES de crear backup
+        const espacioUsado = JSON.stringify(localStorage).length;
+        
+        if (espacioUsado > 4.5 * 1024 * 1024) { // 4.5MB
+            console.warn('⚠️ Espacio crítico, eliminando backups antiguos...');
+            this.limpiarBackupsAntiguos(true); // Forzar limpieza
+        }
+        
+        // Si aún hay espacio, crear backup
+        if (espacioUsado < 5 * 1024 * 1024) { // 5MB
+            try {
+                const timestamp = new Date().toISOString();
+                const backupData = {
+                    inventory: JSON.parse(localStorage.getItem('inventory') || '[]'),
+                    sales: JSON.parse(localStorage.getItem('sales') || '[]'),
+                    settings: JSON.parse(localStorage.getItem('settings') || '{}'),
+                    timestamp: timestamp,
+                    version: '2.0'
+                };
+                
+                const backupKey = `${this.claveBackup}_${Date.now()}`;
+                localStorage.setItem(backupKey, JSON.stringify(backupData));
+                this.limpiarBackupsAntiguos();
+                console.log('💾 Backup automático creado:', backupKey);
+                this.guardarMetadata('ultimo_backup', timestamp);
+                
+            } catch (error) {
+                console.error('❌ Error creando backup:', error);
+                // Si falla, limpiar más backups
+                this.limpiarBackupsAntiguos(true);
             }
-            const timestamp = new Date().toISOString();
-            const backupData = {
-                inventory: JSON.parse(localStorage.getItem('inventory') || '[]'),
-                sales: JSON.parse(localStorage.getItem('sales') || '[]'),
-                settings: JSON.parse(localStorage.getItem('settings') || '{}'),
-                timestamp: timestamp,
-                version: '2.0'
-            };
-            
-            const backupKey = `${this.claveBackup}_${Date.now()}`;
-            localStorage.setItem(backupKey, JSON.stringify(backupData));
-            this.limpiarBackupsAntiguos();
-            console.log('💾 Backup automático creado:', backupKey);
-            this.guardarMetadata('ultimo_backup', timestamp);
-            
-        } catch (error) {
-            console.error('❌ Error creando backup:', error);
-            // Si falla, limpiar backups antiguos
-            this.limpiarBackupsAntiguos(true);
+        } else {
+            console.warn('⚠️ Espacio insuficiente para backup');
         }
     }
     
@@ -912,6 +918,7 @@ async function saveData() {
 }
 
 // Función para sincronizar con Supabase
+// Función para sincronizar con Supabase (VERSIÓN CORREGIDA)
 async function sincronizarConSupabase() {
     try {
         console.log('🔄 Sincronizando con Supabase...');
@@ -919,9 +926,8 @@ async function sincronizarConSupabase() {
         let productosSincronizados = 0;
         let ventasSincronizadas = 0;
         
-        // 1. SINCRONIZAR PRODUCTOS
+        // 1. SINCRONIZAR PRODUCTOS (funciona bien)
         if (inventory.length > 0) {
-            // Preparar TODOS los productos de una vez (más eficiente)
             const productosParaSupabase = inventory.map(producto => ({
                 id: producto.id.toString(),
                 codigo: producto.barcode || '',
@@ -944,64 +950,67 @@ async function sincronizarConSupabase() {
             
             if (errorProductos) {
                 console.error('❌ Error sincronizando productos:', errorProductos);
-                
-                // Intentar uno por uno si falla el batch
-                console.log('🔄 Intentando uno por uno...');
-                for (const productoData of productosParaSupabase) {
-                    try {
-                        const { error } = await window.supabaseClient
-                            .from('productos')
-                            .upsert([productoData], { onConflict: 'id' });
-                        
-                        if (!error) productosSincronizados++;
-                    } catch (e) {
-                        console.error(`❌ Error con producto ${productoData.id}:`, e);
-                    }
-                }
             } else {
                 productosSincronizados = inventory.length;
                 console.log(`✅ ${productosSincronizados} productos sincronizados`);
             }
         }
         
-        // 2. SINCRONIZAR VENTAS
+        // 🔴 2. SINCRONIZAR VENTAS - VERSIÓN CORREGIDA (UNA POR UNA)
         if (sales.length > 0) {
-            // Tomar solo ventas recientes (últimas 50)
-            const ventasRecientes = sales.slice(-50);
-            const ventasParaSupabase = ventasRecientes.map(venta => ({
-                id: venta.id,
-                date: venta.date,
-                paymentmethod: venta.paymentMethod || 'Efectivo',
-                total: parseFloat(venta.total) || 0,
-                items: venta.items // JSONB como lo definiste
-            }));
+            console.log('💰 Sincronizando ventas (una por una para evitar errores)...');
             
-            console.log(`📤 Enviando ${ventasParaSupabase.length} ventas...`);
+            // Tomar solo las últimas 10 ventas para no saturar
+            const ventasRecientes = sales.slice(-10);
+            console.log(`📤 Procesando ${ventasRecientes.length} ventas recientes...`);
             
-            const { error: errorVentas } = await window.supabaseClient
-                .from('ventas')
-                .upsert(ventasParaSupabase, { onConflict: 'id' });
-            
-            if (errorVentas) {
-                console.error('❌ Error sincronizando ventas:', errorVentas);
-                
-                // Intentar una por una
-                for (const ventaData of ventasParaSupabase) {
-                    try {
-                        const { error } = await window.supabaseClient
-                            .from('ventas')
-                            .insert([ventaData])
-                            .select(); // Agregar select() para mejor debugging
-                        
-                        if (!error) ventasSincronizadas++;
-                    } catch (e) {
-                        console.error(`❌ Error con venta ${ventaData.id}:`, e);
+            for (const venta of ventasRecientes) {
+                try {
+                    // Preparar datos de la venta
+                    const ventaData = {
+                        id: venta.id,
+                        date: venta.date,
+                        paymentmethod: venta.paymentMethod || 'Efectivo',
+                        total: parseFloat(venta.total) || 0,
+                        items: venta.items || []
+                    };
+                    
+                    // Intentar insertar/actualizar
+                    const { error } = await window.supabaseClient
+                        .from('ventas')
+                        .upsert([ventaData], { 
+                            onConflict: 'id',
+                            ignoreDuplicates: true
+                        });
+                    
+                    if (error) {
+                        // Si es error de duplicado, intentar con update
+                        if (error.code === '23505' || error.message?.includes('duplicate')) {
+                            console.log(`⚠️ Venta ${venta.id} duplicada, actualizando...`);
+                            
+                            const { error: updateError } = await window.supabaseClient
+                                .from('ventas')
+                                .update(ventaData)
+                                .eq('id', venta.id);
+                            
+                            if (!updateError) ventasSincronizadas++;
+                        } else {
+                            console.error(`❌ Error con venta ${venta.id}:`, error);
+                        }
+                    } else {
+                        ventasSincronizadas++;
+                        console.log(`✅ Venta ${venta.id} sincronizada`);
                     }
+                    
+                    // Pequeña pausa para no saturar la API
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                    
+                } catch (error) {
+                    console.error(`❌ Error procesando venta ${venta.id}:`, error);
                 }
-            } else {
-                ventasSincronizadas = ventasRecientes.length;
-                console.log(`✅ ${ventasSincronizadas} ventas sincronizadas`);
             }
+            
+            console.log(`📊 Ventas sincronizadas: ${ventasSincronizadas}/${ventasRecientes.length}`);
         }
         
         console.log(`🎉 Sincronización completada: ${productosSincronizados} productos, ${ventasSincronizadas} ventas`);
