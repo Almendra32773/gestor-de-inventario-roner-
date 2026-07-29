@@ -1,4 +1,4 @@
-// ==================== PRINT MANAGER - SISTEMA DE IMPRESIÓN PROFESIONAL ====================
+// =================== PRINT MANAGER - SISTEMA DE IMPRESIÓN PROFESIONAL ====================
 (function() {
     console.log('🖨️ Print Manager cargado');
     
@@ -56,7 +56,7 @@
                 }
                 .converted {
                     text-align: right;
-                    font-size: 10px;
+                    font-size: 15px;
                     margin-top: 2px;
                 }
             </style>
@@ -205,7 +205,7 @@
                     <!-- PRECIO NORMAL -->
                     <div style="margin: 15px 0; text-align: center;">
                         <div style="font-size: 11px; color: #666; margin-bottom: 3px;">Precio</div>
-                        <div class="text-xlarge" style="color: #10B981;">
+                        <div class="text-xlarge" style="color: #10B981; font-size: 14px;">
                             ${formatCurrency(product.price)}
                         </div>
                     </div>
@@ -214,7 +214,7 @@
                     ${convertedPrice ? `
                         <div style="margin: 15px 0; text-align: center; background: #f0f9ff; padding: 10px; border-radius: 8px;">
                             <div style="font-size: 11px; color: #666; margin-bottom: 3px;">Precio en ${settings.convertTo}</div>
-                            <div class="text-large" style="color: #2563EB;">
+                            <div class="text-large" style="color: #2563EB; font-size: 24px; font-weight: bold;">
                                 ${convertedPrice}
                             </div>
                         </div>
