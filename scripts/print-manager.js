@@ -1,3 +1,4 @@
+gemini este es un script que imprime tikects de un minimarket quiero reducir el tamaño del precio y aumentar el tamaño del precio convertido indentifica que debo modificar:
 // ==================== PRINT MANAGER - SISTEMA DE IMPRESIÓN PROFESIONAL ====================
 (function() {
     console.log('🖨️ Print Manager cargado');
@@ -164,86 +165,6 @@
         });
     }
     
-    // ========== IMPRIMIR PRODUCTO(S) ==========
-    function printProduct(products, title = 'Producto') {
-        const productsArray = Array.isArray(products) ? products : [products];
-        
-        if (productsArray.length === 0) {
-            alert('No hay productos para imprimir');
-            return;
-        }
-        
-        let productsHTML = '';
-        
-        productsArray.forEach((product, index) => {
-            const convertedPrice = settings.convertTo && settings.convertTo !== settings.currency
-                ? formatCurrency(product.price * settings.conversionRate, settings.convertTo)
-                : '';
-            
-            productsHTML += `
-                <div class="product-page" ${productsArray.length > 1 ? 'style="page-break-after: always;"' : ''}>
-                    <!-- NOMBRE GRANDE -->
-                    <div class="text-xlarge text-center" style="margin: 15px 0; color: #2563EB;">
-                        ${product.name}
-                    </div>
-                    
-                    <!-- TAMAÑO -->
-                    <div class="text-center" style="font-size: 14px; margin-bottom: 15px; color: #666;">
-                        ${product.size || 'Tamaño no especificado'}
-                    </div>
-                    
-                    <div class="divider"></div>
-                    
-                    <!-- CÓDIGO DE BARRAS -->
-                    <div style="margin: 15px 0; text-align: center;">
-                        <div style="font-size: 11px; color: #666; margin-bottom: 3px;">Código de barras</div>
-                        <div style="font-family: 'Courier New', monospace; font-size: 16px; letter-spacing: 2px; background: #f5f5f5; padding: 8px; border-radius: 5px;">
-                            ${product.barcode || 'N/A'}
-                        </div>
-                    </div>
-                    
-                    <!-- PRECIO NORMAL -->
-                    <div style="margin: 15px 0; text-align: center;">
-                        <div style="font-size: 11px; color: #666; margin-bottom: 3px;">Precio</div>
-                        <div class="text-large" style="color: #10B981;">
-                            ${formatCurrency(product.price)}
-                        </div>
-                    </div>
-                    
-                    <!-- PRECIO CONVERTIDO (GRANDE) - Solo si está activo -->
-                    ${convertedPrice ? `
-                        <div style="margin: 15px 0; text-align: center; background: #f0f9ff; padding: 10px; border-radius: 8px;">
-                            <div style="font-size: 11px; color: #666; margin-bottom: 3px;">Precio en ${settings.convertTo}</div>
-                            <div style="color: #2563EB; font-size: 30px; font-weight: bold;">
-                                ${convertedPrice}
-                            </div>
-                        </div>
-                    ` : ''}
-                    
-                    <div class="divider-bold"></div>
-                    
-                    <div class="text-small text-center" style="margin-top: 10px;">
-                        ID: ${product.id}
-                    </div>
-                </div>
-            `;
-        });
-        
-        const content = `
-            <html>
-            <head>
-                <title>${title} - ${settings.storeName}</title>
-                ${PRINT_STYLES.parse(PRINT_STYLES.base, settings.printerWidth)}
-            </head>
-            <body>
-                ${productsHTML}
-            </body>
-            </html>
-        `;
-        
-        printDocument(content, title, 400, 600);
-    }
-    
     // ========== IMPRIMIR RECIBO DE VENTA (DISEÑO EXACTO DE LA IMAGEN) ==========
     async function printReceipt() {
         // Obtener datos de la venta
@@ -341,6 +262,80 @@
         
         await printDocument(content, 'recibo', 400, 600);
         continueSale();
+    }
+    
+    // ========== IMPRIMIR PRODUCTO(S) ==========
+    function printProduct(products, title = 'Producto') {
+        const productsArray = Array.isArray(products) ? products : [products];
+        
+        if (productsArray.length === 0) {
+            alert('No hay productos para imprimir');
+            return;
+        }
+        
+        let productsHTML = '';
+        
+        productsArray.forEach((product, index) => {
+            const convertedPrice = settings.convertTo && settings.convertTo !== settings.currency
+                ? formatCurrency(product.price * settings.conversionRate, settings.convertTo)
+                : '';
+            
+            productsHTML += `
+                <div class="product-page" ${productsArray.length > 1 ? 'style="page-break-after: always;"' : ''}>
+                    <!-- NOMBRE GRANDE -->
+                    <div style="font-size: 24px; font-weight: bold; text-align: center; margin: 20px 0; color: #000;">
+                        ${product.name}
+                    </div>
+                    
+                    <!-- TAMAÑO -->
+                    <div style="text-align: center; font-size: 14px; margin-bottom: 20px;">
+                        ${product.size || ''}
+                    </div>
+                    
+                    <div class="divider"></div>
+                    
+                    <!-- CÓDIGO DE BARRAS -->
+                    <div style="margin: 15px 0;">
+                        <div style="font-size: 11px; margin-bottom: 3px;">Código:</div>
+                        <div style="font-family: 'Courier New', monospace; font-size: 16px;">
+                            ${product.barcode || 'N/A'}
+                        </div>
+                    </div>
+                    
+                    <!-- PRECIO -->
+                    <div style="margin: 15px 0;">
+                        <div style="font-size: 11px; margin-bottom: 3px;">Precio:</div>
+                        <div style="font-size: 15px; font-weight: bold;">
+                            ${formatCurrency(product.price)}
+                        </div>
+                    </div>
+                    
+                    <!-- PRECIO CONVERTIDO -->
+                    ${convertedPrice ? `
+                        <div style="margin: 15px 0; font-size: 25px; font-weight: bold;"">
+                            ${convertedPrice}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        });
+        
+        const content = `
+            <html>
+            <head>
+                <title>${title} - ${settings.storeName}</title>
+                ${PRINT_STYLES.parse(PRINT_STYLES.base, settings.printerWidth)}
+                <style>
+                    body { font-family: Arial, sans-serif; }
+                </style>
+            </head>
+            <body>
+                ${productsHTML}
+            </body>
+            </html>
+        `;
+        
+        printDocument(content, title, 400, 600);
     }
     
     // ========== FUNCIONES DE COMPATIBILIDAD ==========
