@@ -209,14 +209,12 @@
                     </div> -->
                     
                     <!-- PRECIO CONVERTIDO -->
-                    ${convertedPrice ? `
                     <div style="text-align: center; margin: 10px 0;">
                         <div style="font-size: 15px; font-weight: bold;">Precio</div>
                         <div style="text-align: center; font-size: 25px; font-weight: bold; margin: 10px 0;">
                             ${convertedPrice}
                         </div>
                     </div>
-                    ` : ''}
                     
                     <div class="divider"></div>
                 </div>
