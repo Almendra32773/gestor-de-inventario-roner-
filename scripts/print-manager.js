@@ -183,44 +183,39 @@
             
             productsHTML += `
                 <div class="product-page" ${productsArray.length > 1 ? 'style="page-break-after: always;"' : ''}>
-                    <!-- NOMBRE GRANDE -->
-                    <div class="text-xlarge text-center" style="margin: 15px 0; color: #2563EB; font-weight: bold;">
+                    <!-- NOMBRE -->
+                    <div style="font-size: 30px; font-weight: bold; text-align: center; margin-bottom: 5px;">
                         ${product.name}
                     </div>
                     
                     <!-- TAMAÑO -->
-                    <div class="text-center" style="font-size: 14px; margin-bottom: 15px; color: #666; font-weight: bold;">
-                        ${product.size || 'Tamaño no especificado'}
+                    <div style="font-size: 20px; font-weight: bold; text-align: center; margin-bottom: 10px;">
+                        ${product.size || ''}
                     </div>
                     
                     <div class="divider"></div>
                     
                     <!-- CÓDIGO DE BARRAS -->
-                    <div style="margin: 15px 0; text-align: center;">
-                        <div style="font-size: 11px; color: #666; margin-bottom: 3px; font-weight: bold;">Código de barras</div>
-                        <div style="font-family: 'Courier New', monospace; font-size: 16px; letter-spacing: 2px; background: #f5f5f5; padding: 8px; border-radius: 5px; font-weight: bold;">
+                    <div style="text-align: center; margin: 10px 0;">
+                        <div style="font-size: 11px; font-weight: bold;">Código de barras:</div>
+                        <div style="font-size: 12px; font-weight: bold;">
                             ${product.barcode || 'N/A'}
                         </div>
                     </div>
                     
-                    <!-- PRECIO NORMAL -->
-                    <div style="margin: 15px 0; text-align: center;">
-                        <div style="font-size: 11px; color: #666; margin-bottom: 3px; font-weight: bold;">Precio</div>
-                        <div class="text-large" style="color: #10B981; font-weight: bold;">
-                            ${formatCurrency(product.price)}
-                        </div>
+                    <!-- PRECIO -->
+                    <div style="text-align: center; font-size: 20px; font-weight: bold; margin: 10px 0;">
+                        ${formatCurrency(product.price)}
                     </div>
                     
-                    <!-- PRECIO CONVERTIDO (GRANDE) - Solo si está activo -->
+                    <!-- PRECIO CONVERTIDO -->
                     ${convertedPrice ? `
-                        <div style="margin: 15px 0; text-align: center; background: #f0f9ff; padding: 10px; border-radius: 8px;">
-                            <div style="font-size: 11px; color: #666; margin-bottom: 3px; font-weight: bold;">Precio en ${settings.convertTo}</div>
-                            <div class="text-xlarge" style="color: #2563EB; font-weight: bold;">
-                                ${convertedPrice}
-                            </div>
+                        <div style="text-align: center; font-size: 30px; font-weight: bold; margin: 10px 0;">
+                            ${convertedPrice}
                         </div>
                     ` : ''}
                     
+                    <div class="divider"></div>
                 </div>
             `;
         });
