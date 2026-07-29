@@ -204,12 +204,18 @@
                     </div>
                     
                     <!-- PRECIO -->
-                    <div style="text-align: center; font-size: 20px; font-weight: bold; margin: 10px 0;">
+                    <!--<div style="text-align: center; font-size: 20px; font-weight: bold; margin: 10px 0;">
                         ${formatCurrency(product.price)}
-                    </div>
+                    </div> -->
                     
                     <!-- PRECIO CONVERTIDO -->
                     ${convertedPrice ? `
+                    <div style="text-align: center; margin: 10px 0;">
+                        <div style="font-size: 14px; font-weight: bold;">Precio</div>
+                        <div style="text-align: center; font-size: 25px; font-weight: bold; margin: 10px 0;">
+                            ${convertedPrice}
+                        </div>
+                    </div>
                         <div style="text-align: center; font-size: 25px; font-weight: bold; margin: 10px 0;">
                             ${convertedPrice}
                         </div>
