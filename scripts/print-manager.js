@@ -17,6 +17,7 @@
                     color: #000;
                     line-height: 1.4;
                     font-size: 12px;
+                    font-weight: bold;
                 }
                 .store-name {
                     font-size: 16px;
@@ -184,24 +185,24 @@
             productsHTML += `
                 <div class="product-page" ${productsArray.length > 1 ? 'style="page-break-after: always;"' : ''}>
                     <!-- NOMBRE -->
-                    <div style="font-size: 25px; font-weight: bold; text-align: center; margin-bottom: 5px;">
+                    <div style="font-size: 26px; font-weight: bold; text-align: center; margin-bottom: 5px;">
                         ${product.name}
                     </div>
                     
                     <!-- TAMAÑO -->
-                    <div style="font-size: 20px; font-weight: bold; text-align: center; margin-bottom: 10px;">
+                    <div style="font-size: 25px; font-weight: bold; text-align: center; margin-bottom: 10px;">
                         ${product.size || ''}
                     </div>
                     
                     <div class="divider"></div>
                     
                     <!-- CÓDIGO DE BARRAS -->
-                    <div style="text-align: center; margin: 10px 0;">
+                    <!-- <div style="text-align: center; margin: 10px 0;">
                         <div style="font-size: 11px; font-weight: bold;">Código de barras:</div>
                         <div style="font-size: 14px; font-weight: bold;">
                             ${product.barcode || 'N/A'}
                         </div>
-                    </div>
+                    </div> -->
                     
                     <!-- PRECIO -->
                     <!--<div style="text-align: center; font-size: 20px; font-weight: bold; margin: 10px 0;">
@@ -210,8 +211,8 @@
                     
                     <!-- PRECIO CONVERTIDO -->
                     <div style="text-align: center; margin: 10px 0;">
-                        <div style="font-size: 15px; font-weight: bold;">Precio</div>
-                        <div style="text-align: center; font-size: 25px; font-weight: bold; margin: 10px 0;">
+                        <div style="font-size: 20px; font-weight: bold;">Precio</div>
+                        <div style="text-align: center; font-size: 26px; font-weight: bold; margin: 10px 0;">
                             ${convertedPrice}
                         </div>
                     </div>
